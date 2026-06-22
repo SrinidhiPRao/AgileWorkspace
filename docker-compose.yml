@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: task_manager_db
+    restart: always
+    environment:
+      # MySQL official image requires this exact variable for the root pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}" ]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: task_manager_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: task_manager_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
