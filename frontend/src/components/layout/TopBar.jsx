@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext.jsx';
+import { SearchBar } from '../search/SearchBar.jsx';
 
 function initials(name) {
   if (!name) return '?';
@@ -7,30 +8,21 @@ function initials(name) {
 
 /**
  * @param {{
- *   searchQuery: string,
- *   onSearchChange: (q: string) => void,
- *   onQuickCreate: () => void,
- *   unreadCount: number,
+ *   onNavigate:      (view: string) => void,
+ *   onQuickCreate:   () => void,
+ *   unreadCount:     number,
  *   onNotifications: () => void,
- *   onProfile: () => void,
+ *   onProfile:       () => void,
  * }} props
  */
-export function TopBar({ searchQuery, onSearchChange, onQuickCreate, unreadCount, onNotifications, onProfile }) {
+export function TopBar({ onNavigate, onQuickCreate, unreadCount, onNotifications, onProfile }) {
   const { currentUser } = useAuth();
   const avatar = initials(currentUser?.name);
 
   return (
     <header className="top-bar">
-      <div className="search-container">
-        <i className="bx bx-search search-icon" />
-        <input
-          type="text"
-          placeholder="Global Search…"
-          className="search-input"
-          value={searchQuery}
-          onChange={e => onSearchChange(e.target.value)}
-        />
-      </div>
+      {/* SearchBar is fully self-contained — owns input, dropdown, keyboard nav */}
+      <SearchBar onNavigate={onNavigate} />
 
       <div className="top-bar-actions">
         <button className="btn btn-primary" onClick={onQuickCreate} title="Quick Create Item">

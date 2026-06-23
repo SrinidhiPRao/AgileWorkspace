@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { backlogs, features, stories, tasks, users } from '../../api/index.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useSearchContext } from '../../context/SearchContext.jsx';
 
 const KANBAN_VIEWS = ['backlogs', 'features', 'stories', 'tasks'];
 
@@ -9,15 +10,16 @@ const KANBAN_VIEWS = ['backlogs', 'features', 'stories', 'tasks'];
  */
 export function QuickCreateModal({ open, currentView, onClose, onCreated }) {
   const { showToast } = useToast();
+  const { invalidate } = useSearchContext();
   const titleRef = useRef(null);
 
-  const [type,     setType]     = useState('backlogs');
-  const [title,    setTitle]    = useState('');
-  const [desc,     setDesc]     = useState('');
+  const [type, setType] = useState('backlogs');
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState('medium');
   const [assignee, setAssignee] = useState('');
   const [teamList, setTeamList] = useState([]);
-  const [saving,   setSaving]   = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Pre-select type from current nav view when modal opens
   useEffect(() => {
@@ -31,7 +33,7 @@ export function QuickCreateModal({ open, currentView, onClose, onCreated }) {
   useEffect(() => {
     users.list({ is_active: true, limit: 100 })
       .then(res => setTeamList(res.data ?? []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const reset = () => { setTitle(''); setDesc(''); setPriority('medium'); setAssignee(''); };
@@ -67,6 +69,7 @@ export function QuickCreateModal({ open, currentView, onClose, onCreated }) {
       }
       handleClose();
       showToast(`Created "${title}" in ${type}`);
+      invalidate();   // flush search index so new record appears immediately
       onCreated(type);
     } catch (err) {
       showToast(err.message ?? 'Failed to create item.', 'error');

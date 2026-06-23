@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
+import { SearchProvider } from './context/SearchContext.jsx';
 import { Sidebar } from './components/layout/Sidebar.jsx';
 import { TopBar } from './components/layout/TopBar.jsx';
 import { QuickCreateModal } from './components/modals/QuickCreateModal.jsx';
@@ -22,9 +23,9 @@ const VIEW_LABELS = {
 };
 
 // ── Workspace router ──────────────────────────────────────────────────────────
-function WorkspaceContent({ currentView, searchQuery, onNavigate }) {
+function WorkspaceContent({ currentView, onNavigate }) {
   if (KANBAN_VIEWS.includes(currentView)) {
-    return <KanbanView viewType={currentView} searchQuery={searchQuery} onNavigate={onNavigate} />;
+    return <KanbanView viewType={currentView} onNavigate={onNavigate} />;
   }
   switch (currentView) {
     case 'team': return <TeamView />;
@@ -44,7 +45,6 @@ function WorkspaceContent({ currentView, searchQuery, onNavigate }) {
 // ── Authenticated shell ───────────────────────────────────────────────────────
 function AppShell() {
   const [currentView, setCurrentView] = useState('backlogs');
-  const [searchQuery, setSearchQuery] = useState('');
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -53,7 +53,6 @@ function AppShell() {
 
   const navigate = useCallback((view) => {
     setCurrentView(view);
-    setSearchQuery('');
   }, []);
 
   const handleCreated = useCallback((type) => {
@@ -66,9 +65,9 @@ function AppShell() {
       <Sidebar currentView={currentView} onNavigate={navigate} />
 
       <div className="main-wrapper">
+        {/* TopBar now receives onNavigate so SearchBar can drive navigation */}
         <TopBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onNavigate={navigate}
           onQuickCreate={() => setQuickCreateOpen(true)}
           unreadCount={unreadCount}
           onNotifications={() => { setNotifOpen(true); setProfileOpen(false); }}
@@ -82,7 +81,6 @@ function AppShell() {
           <WorkspaceContent
             key={`${currentView}-${boardKey}`}
             currentView={currentView}
-            searchQuery={searchQuery}
             onNavigate={navigate}
           />
         </main>
@@ -107,12 +105,11 @@ function AppShell() {
   );
 }
 
-// ── Auth gate — decides what to render based on auth state ───────────────────
+// ── Auth gate ─────────────────────────────────────────────────────────────────
 function AuthGate() {
   const { token, authChecked } = useAuth();
-  const [authPage, setAuthPage] = useState('login'); // 'login' | 'signup'
+  const [authPage, setAuthPage] = useState('login');
 
-  // Still verifying the stored token — show nothing to avoid flash
   if (!authChecked) {
     return (
       <div className="auth-boot">
@@ -120,14 +117,8 @@ function AuthGate() {
       </div>
     );
   }
-
-  // Authenticated
   if (token) return <AppShell />;
-
-  // Unauthenticated
-  if (authPage === 'signup') {
-    return <SignupPage onGoToLogin={() => setAuthPage('login')} />;
-  }
+  if (authPage === 'signup') return <SignupPage onGoToLogin={() => setAuthPage('login')} />;
   return <LoginPage onGoToSignup={() => setAuthPage('signup')} />;
 }
 
@@ -136,7 +127,10 @@ export default function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <AuthGate />
+        {/* SearchProvider must be inside AuthProvider so API calls have the token */}
+        <SearchProvider>
+          <AuthGate />
+        </SearchProvider>
       </ToastProvider>
     </AuthProvider>
   );
