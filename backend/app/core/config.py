@@ -14,6 +14,7 @@ class Settings:
         self.MYSQL_DB = environ["MYSQL_DB"]
         
         self.FIRST_SUPERUSER_EMAIL = environ["FIRST_SUPERUSER_EMAIL"]
+        self.FIRST_SUPERUSER_NAME = environ["FIRST_SUPERUSER_NAME"]
         self.FIRST_SUPERUSER_PASSWORD = environ["FIRST_SUPERUSER_PASSWORD"]
 
         self.SECRET_KEY = environ["SECRET_KEY"]

@@ -21,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: ./backend/Dockerfile
+    image: task_manager_backend:${BACKEND_VERSION:-latest}
     container_name: task_manager_backend
     restart: always
     ports:
@@ -35,6 +36,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: task_manager_frontend:${FRONTEND_VERSION:-latest}
     container_name: task_manager_frontend
     restart: always
     ports:
