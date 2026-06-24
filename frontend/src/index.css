@@ -1750,3 +1750,366 @@ body {
   min-width: 40px;
   text-align: right;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ITEM DETAIL MODAL
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Wider modal for the detail view */
+.detail-backdrop {
+  z-index: 110;
+}
+
+.detail-modal {
+  width: min(600px, 100%);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.detail-modal-header {
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  padding: var(--space-lg);
+}
+
+.detail-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.detail-modal-actions {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Type chip */
+.detail-type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  color: var(--colors-secondary);
+  background-color: var(--colors-surface-2);
+  border: 1px solid var(--colors-border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+
+.detail-type-chip i {
+  font-size: 12px;
+}
+
+/* Status pill — clickable cycle button */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.status-pill:hover {
+  opacity: 0.75;
+}
+
+.status-pill:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.status-pill-todo {
+  color: var(--colors-secondary);
+  border-color: var(--colors-border);
+  background: transparent;
+}
+
+.status-pill-inprogress {
+  color: var(--colors-warning);
+  border-color: var(--colors-warning);
+  background: transparent;
+}
+
+.status-pill-completed {
+  color: var(--colors-success);
+  border-color: var(--colors-success);
+  background: transparent;
+}
+
+/* Action icon buttons in header */
+.detail-action-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+}
+
+.detail-action-danger {
+  color: var(--colors-error) !important;
+}
+
+.detail-action-danger:hover {
+  background-color: rgba(217, 83, 79, 0.08) !important;
+}
+
+/* ── Body ───────────────────────────────────────────────────── */
+.detail-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Read-only field display */
+.detail-field-display {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--colors-primary);
+  line-height: 1.6;
+  min-height: 22px;
+}
+
+.detail-empty {
+  color: var(--colors-secondary);
+  font-style: italic;
+}
+
+/* Parent breadcrumb link */
+.detail-parent-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--colors-tertiary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.detail-parent-link:hover {
+  text-decoration: underline;
+}
+
+/* Metadata rows (timestamps, creator, assignee) */
+.detail-timestamps {
+  border-top: 1px solid var(--colors-border);
+  padding-top: var(--space-md);
+  margin-top: var(--space-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.detail-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 3px 0;
+}
+
+.detail-meta-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colors-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.detail-meta-value {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--colors-primary);
+  text-align: right;
+}
+
+/* ID row */
+.detail-id-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--colors-surface-1);
+  border: 1px solid var(--colors-border);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-xs);
+}
+
+.detail-id-label {
+  font-family: var(--font-label);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--colors-secondary);
+  flex-shrink: 0;
+}
+
+.detail-id-value {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--colors-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-id-copy {
+  background: none;
+  border: none;
+  font-family: var(--font-label);
+  font-size: 11px;
+  color: var(--colors-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s;
+}
+
+.detail-id-copy:hover {
+  background-color: var(--colors-surface-2);
+}
+
+/* ── Delete confirmation ─────────────────────────────────────── */
+.delete-confirm {
+  text-align: center;
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.delete-confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(217, 83, 79, 0.08);
+  border: 1px solid rgba(217, 83, 79, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-confirm-icon i {
+  font-size: 1.5rem;
+  color: var(--colors-error);
+}
+
+.delete-confirm-title {
+  font-family: var(--font-headline);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--colors-primary);
+}
+
+.delete-confirm-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--colors-secondary);
+  line-height: 1.6;
+  max-width: 380px;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-top: var(--space-sm);
+}
+
+/* ── Danger button variant ──────────────────────────────────── */
+.btn-danger {
+  background-color: var(--colors-error);
+  color: #fff;
+  border-color: var(--colors-error);
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.detail-modal-footer {
+  justify-content: space-between;
+}
+
+.detail-footer-delete {
+  color: var(--colors-error) !important;
+  border-color: rgba(217, 83, 79, 0.3) !important;
+}
+
+.detail-footer-delete:hover {
+  background-color: rgba(217, 83, 79, 0.06) !important;
+  border-color: var(--colors-error) !important;
+}
+
+/* ── Card hover hint ────────────────────────────────────────── */
+.card-open-hint {
+  position: absolute;
+  bottom: var(--card-padding);
+  right: var(--card-padding);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--colors-secondary);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+/* Card needs position:relative for the hint to anchor */
+.card {
+  position: relative;
+}
+
+.card:hover .card-open-hint,
+.card:focus .card-open-hint {
+  opacity: 1;
+}

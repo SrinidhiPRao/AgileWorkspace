@@ -8,30 +8,31 @@ const KANBAN_COLUMNS = [
 ];
 
 /**
- * Full kanban board. Manages the dragged card ID in local state so
- * all columns share it without lifting it further up.
- *
- * @param {{ viewType, records, onDrop, onNavigate }} props
+ * @param {{ viewType, records, onDrop, onNavigate, onCardClick, searchQuery }} props
  */
-export function KanbanBoard({ viewType, records, onDrop, onNavigate }) {
+export function KanbanBoard({ viewType, records, onDrop, onNavigate, onCardClick, searchQuery = '' }) {
   const [draggedId, setDraggedId] = useState(null);
-  const filteredRecords = records;
+
+  const filtered = searchQuery
+    ? records.filter(r =>
+      r.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : records;
 
   return (
-    <div
-      className="kanban-board"
-      style={{ '--kanban-cols': KANBAN_COLUMNS.length }}
-    >
+    <div className="kanban-board" style={{ '--kanban-cols': KANBAN_COLUMNS.length }}>
       {KANBAN_COLUMNS.map(col => (
         <KanbanColumn
           key={col.id}
           column={col}
           viewType={viewType}
-          items={filteredRecords.filter(r => r.status === col.id)}
+          items={filtered.filter(r => r.status === col.id)}
           draggedId={draggedId}
           onDragStart={(id) => setDraggedId(id)}
           onDrop={(id, newStatus) => { setDraggedId(null); onDrop(id, newStatus); }}
           onNavigate={onNavigate}
+          onCardClick={onCardClick}
         />
       ))}
     </div>

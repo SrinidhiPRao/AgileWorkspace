@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { Badge }  from '../ui/Badge.jsx';
+import { useRef, useState } from 'react';
+import { Badge } from '../ui/Badge.jsx';
 
 const PARENT_VIEW = { features: 'backlogs', stories: 'features', tasks: 'stories' };
 
@@ -10,24 +10,37 @@ function formatDate(iso) {
 }
 
 /**
- * Draggable kanban card. Handles its own dragstart/dragend.
+ * Draggable kanban card.
+ * Click opens the detail modal; drag moves the card between columns.
+ * We distinguish click from drag by tracking whether the pointer moved
+ * more than a few pixels between mousedown and mouseup.
  *
- * @param {{ viewType, item, onDragStart, onNavigate }} props
+ * @param {{ viewType, item, onDragStart, onNavigate, onCardClick }} props
  */
-export function KanbanCard({ viewType, item, onDragStart, onNavigate }) {
+export function KanbanCard({ viewType, item, onDragStart, onNavigate, onCardClick }) {
   const cardRef = useRef(null);
+  const dragMoved = useRef(false);   // true once dragstart fires
+  const parentView = PARENT_VIEW[viewType];
 
   const handleDragStart = (e) => {
     e.dataTransfer.effectAllowed = 'move';
+    dragMoved.current = true;
     cardRef.current?.classList.add('dragging');
     onDragStart(item.id);
   };
 
   const handleDragEnd = () => {
     cardRef.current?.classList.remove('dragging');
+    // Reset after a tick so the click handler (which fires after dragend) can read it
+    setTimeout(() => { dragMoved.current = false; }, 0);
   };
 
-  const parentView = PARENT_VIEW[viewType];
+  const handleClick = (e) => {
+    // Don't open modal if the user was dragging or clicked the parent breadcrumb
+    if (dragMoved.current) return;
+    if (e.target.closest('.card-parent-link')) return;
+    onCardClick?.(item);
+  };
 
   return (
     <div
@@ -36,12 +49,17 @@ export function KanbanCard({ viewType, item, onDragStart, onNavigate }) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' && onCardClick?.(item)}
+      aria-label={`Open ${item.title}`}
     >
       {/* Parent breadcrumb */}
       {item.parentTitle && (
         <button
           className="card-parent-link"
-          onClick={() => onNavigate?.(parentView)}
+          onClick={e => { e.stopPropagation(); onNavigate?.(parentView); }}
         >
           <i className="bx bx-link" />
           {' '}{item.parentTitle}
@@ -58,7 +76,7 @@ export function KanbanCard({ viewType, item, onDragStart, onNavigate }) {
       <div className="card-title">{item.title}</div>
       <div className="card-desc">{item.description}</div>
 
-      {/* Type-specific meta footer */}
+      {/* Backlogs meta */}
       {viewType === 'backlogs' && (
         <div className="card-meta">
           <Badge priority={item.priority} />
@@ -68,6 +86,7 @@ export function KanbanCard({ viewType, item, onDragStart, onNavigate }) {
         </div>
       )}
 
+      {/* Tasks meta */}
       {viewType === 'tasks' && (
         <div className="card-meta">
           <div className="card-task-footer">
@@ -90,6 +109,11 @@ export function KanbanCard({ viewType, item, onDragStart, onNavigate }) {
           </div>
         </div>
       )}
+
+      {/* Hover hint — always visible on focus, visible on hover via CSS */}
+      <div className="card-open-hint" aria-hidden="true">
+        <i className="bx bx-expand-alt" /> Open
+      </div>
     </div>
   );
 }
