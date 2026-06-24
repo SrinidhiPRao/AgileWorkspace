@@ -4,8 +4,8 @@ from app.crud import assign_user_role, create_role, create_user
 from app.core.config import settings
 from app.models import Role, RoleCreate, User, User_Role, UserCreate
 
-# engine = create_engine(str(settings.MYSQL_DATABASE_URI()))
-engine = create_engine(str(settings.SQLITE_DATABASE_URI()))
+engine = create_engine(str(settings.MYSQL_DATABASE_URI()))
+# engine = create_engine(str(settings.SQLITE_DATABASE_URI()))
 
 
 def init_db(session: Session):

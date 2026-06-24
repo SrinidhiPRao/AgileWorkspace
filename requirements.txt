@@ -8,3 +8,4 @@ pwdlib[bcrypt]
 pydantic[email]
 pyjwt==2.13.0
 dotenv==0.9.9
+pymysql==1.2.0
