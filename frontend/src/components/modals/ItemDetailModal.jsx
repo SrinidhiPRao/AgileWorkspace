@@ -31,8 +31,12 @@ const TYPE_ICONS = {
 
 function formatDate(iso) {
   if (!iso) return '—';
-  const d = new Date(iso);
-  return isNaN(d) ? iso : d.toLocaleDateString('en-US', {
+
+  // Force UTC parsing if the backend omits the 'Z' or timezone offset
+  const utcIso = iso.endsWith('Z') || iso.match(/[+-]\d{2}:\d{2}$/) ? iso : `${iso}Z`;
+  const d = new Date(utcIso);
+
+  return isNaN(d) ? iso : d.toLocaleString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
@@ -133,7 +137,23 @@ export function ItemDetailModal({ open, item, viewType, onClose, onUpdate, onDel
     setDesc(item.description ?? '');
     setStatus(item.status ?? 'to-do');
     setPriority(item.priority ?? 'medium');
-    setDueDate(item.dueDate ? item.dueDate.split('T')[0] : '');
+
+    // Parse UTC to local YYYY-MM-DD for the date input
+    if (item.dueDate) {
+      const utcIso = item.dueDate.endsWith('Z') || item.dueDate.match(/[+-]\d{2}:\d{2}$/) ? item.dueDate : `${item.dueDate}Z`;
+      const d = new Date(utcIso);
+      if (!isNaN(d)) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        setDueDate(`${yyyy}-${mm}-${dd}`);
+      } else {
+        setDueDate('');
+      }
+    } else {
+      setDueDate('');
+    }
+
     setEditing(false);
     setConfirming(false);
     setSaving(false);
@@ -191,7 +211,22 @@ export function ItemDetailModal({ open, item, viewType, onClose, onUpdate, onDel
     setDesc(item.description ?? '');
     setStatus(item.status ?? 'to-do');
     setPriority(item.priority ?? 'medium');
-    setDueDate(item.dueDate ? item.dueDate.split('T')[0] : '');
+
+    if (item.dueDate) {
+      const utcIso = item.dueDate.endsWith('Z') || item.dueDate.match(/[+-]\d{2}:\d{2}$/) ? item.dueDate : `${item.dueDate}Z`;
+      const d = new Date(utcIso);
+      if (!isNaN(d)) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        setDueDate(`${yyyy}-${mm}-${dd}`);
+      } else {
+        setDueDate('');
+      }
+    } else {
+      setDueDate('');
+    }
+
     setEditing(false);
   };
 
